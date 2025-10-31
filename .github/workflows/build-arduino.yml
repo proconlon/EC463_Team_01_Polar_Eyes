@@ -1,0 +1,37 @@
+name: Build Arduino Sentry Firmware
+
+on:
+  push:
+    paths:
+      - 'power_controller_nano/**' # Only run when Nano code changes
+  pull_request:
+    paths:
+      - 'power_controller_nano/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 1. Checkout repository
+      uses: actions/checkout@v4
+
+    - name: 2. Install Arduino CLI
+      uses: arduino/setup-arduino-cli@v2
+
+    - name: 3. Install Arduino AVR Core
+      run: |
+        arduino-cli core update-index
+        arduino-cli core install arduino:avr
+
+    - name: 4. Compile the sketch
+      run: |
+        arduino-cli compile \
+          --fqbn arduino:avr:nano \
+          ./power_controller_nano/power_controller_nano.ino
+
+    - name: 5. Upload firmware artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: nano-firmware
+        path: ./power_controller_nano/build/arduino.avr.nano/power_controller_nano.ino.hex

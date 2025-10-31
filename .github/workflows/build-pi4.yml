@@ -1,0 +1,45 @@
+name: Build Pi 4 Worker Image
+
+on:
+  push:
+    paths:
+      - 'storage_pi_four/**' # Only run when Pi 4 code/config changes
+  pull_request:
+    paths:
+      - 'storage_pi_four/**'
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 1. Checkout repository
+      uses: actions/checkout@v4
+
+    - name: 2. Install Packer
+      uses: hashicorp/setup-packer@v3
+
+    - name: 3. Install QEMU (for ARM emulation)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y qemu-user-static
+
+    - name: 4. Download base Raspberry Pi OS image
+      run: |
+        # This "freezes" your OS version. Update this link as needed.
+        echo "Downloading base OS..."
+        wget https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2024-03-15/2024-03-15-raspios_lite_arm64.img.xz
+        echo "Decompressing..."
+        unxz 2024-03-15-raspios_lite_arm64.img.xz
+        # Rename it to what Packer expects
+        mv 2024-03-15-raspios_lite_arm64.img base-raspios-lite-arm64.img
+
+    - name: 5. Run Packer Build
+      run: |
+        packer build -var 'build_version=${{ github.run_number }}' ./storage_pi_four/worker-build.pkr.hcl
+
+    - name: 6. Upload Pi 4 image artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: pi4-worker-image
+        path: ./build/polar-eyes-worker-v${{ github.run_number }}.img
