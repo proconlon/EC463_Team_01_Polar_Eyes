@@ -4,9 +4,11 @@ on:
   push:
     paths:
       - 'power_controller_nano/**' # Only run when Nano code changes
+      - '.github/workflows/build-arduino.yml'
   pull_request:
     paths:
       - 'power_controller_nano/**'
+      - '.github/workflows/build-arduino.yml'
 
 jobs:
   build:

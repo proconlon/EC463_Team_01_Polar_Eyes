@@ -4,9 +4,11 @@ on:
   push:
     paths:
       - 'storage_pi_four/**' # Only run when Pi 4 code/config changes
+      - '.github/workflows/build-pi4.yml'
   pull_request:
     paths:
       - 'storage_pi_four/**'
+      - '.github/workflows/build-pi4.yml'
 
 jobs:
   build-image:
