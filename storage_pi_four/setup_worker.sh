@@ -1,26 +1,52 @@
+# #!/bin/bash
+# # This script is run by Packer to build the OS image.
+# echo "--- [WORKER PI SETUP] Starting ---"
+
+# # 1. Install Dependencies
+# apt-get update
+# apt-get install -y git g++ make mdadm rpi.gpio-common
+
+# # 2. Get the Code
+# # (Packer copies this to /opt/polar-eyes)
+# CODE_DIR="/opt/polar-eyes"
+
+# # 3. Build C++ Code
+# echo "Building C++ capture tools..."
+# make -C $CODE_DIR/storage_pi_four/
+# mv $CODE_DIR/storage_pi_four/timelapse_capture /usr/local/bin/
+# mv $CODE_DIR/storage_pi_four/event_capture /usr/local/bin/
+
+# # 4. Install the Triage Script
+# echo "Installing Triage Script..."
+# mv $CODE_DIR/storage_pi_four/worker_triage.sh /usr/local/bin/
+# chmod +x /usr/local/bin/worker_triage.sh
+
+# # 5. Install and Enable the Boot Service
+# echo "Enabling Boot Service..."
+# cp $CODE_DIR/config_scripts/worker-boot.service /etc/systemd/system/
+# systemctl enable worker-boot.service
+
+# # 6. Create Log File
+# touch /var/log/polar_eyes.log
+# chmod 666 /var/log/polar_eyes.log
+
+# echo "--- [WORKER PI SETUP] Complete ---"
+
 #!/bin/bash
-# This script is run by Packer inside the image
-echo "--- [WORKER PI SETUP] Starting ---"
+set -e # Exit immediately if any command fails
 
-# 1. Install Dependencies
+echo "--- [MINIMAL TEST SCRIPT] Starting ---"
+
+echo "Running apt-get update..."
 apt-get update
-apt-get install -y git g++ make mdadm
 
-# 2. Get the Code
-# (Packer can also be set to clone this, but this is simple)
-mkdir /opt/polar-eyes
-# (Packer will copy your repo files here)
+echo "Installing a small package (curl)..."
+apt-get install -y curl
 
-# 3. Build C++ Code
-echo "Building C++ capture tools..."
-cd /opt/polar-eyes/worker_node_pi_four/
-make all
-mv timelapse_capture /usr/local/bin/
+echo "Proving we are in an ARM environment:"
+uname -m
 
-# 4. Set up Boot Service
-echo "Setting up boot script..."
-# (This service will run your C++ code ONCE on boot, then shut down)
-cp /opt/polar-eyes/config_scripts/worker-boot.service /etc/systemd/system/
-systemctl enable worker-boot.service
+echo "Creating a test file..."
+touch /I_WAS_HERE.txt
 
-echo "--- [WORKER PI SETUP] Complete ---"
+echo "--- [MINIMAL TEST SCRIPT] Complete ---"

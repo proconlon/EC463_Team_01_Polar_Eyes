@@ -70,3 +70,7 @@ packer_cache/
 
 # Local Config
 .env
+
+# Github actions runner
+actions-runner/
+.secrets

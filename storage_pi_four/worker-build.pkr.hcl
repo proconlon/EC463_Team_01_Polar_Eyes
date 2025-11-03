@@ -11,12 +11,12 @@ variable "build_version" {
 }
 
 packer {
-  required_plugins {
-    arm = {
-      version = ">= 1.1.0"
-      source  = "github.com/hashicorp/arm"
-    }
-  }
+  required_plugins {
+    arm = {
+      version = ">= 1.1.0"
+      source  = "github.com/mkaczanowski/packer-builder-arm/"
+    }
+  }
 }
 
 source "arm" "raspi-worker" {
