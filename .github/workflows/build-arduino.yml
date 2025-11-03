@@ -20,18 +20,18 @@ jobs:
       run: |
         curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=/usr/local/bin sh
 
-    - name: 3. Cache Arduino AVR Core
-      id: cache-avr-core
+    - name: 3. Cache Arduino Core & Tools
+      id: cache-arduino
       uses: actions/cache@v4
       with:
-        # This is the path where the AVR core is stored
-        path: ~/.arduino15/packages/arduino/hardware/avr
-        # This key tells the cache what to look for
-        key: ${{ runner.os }}-arduino-avr
+        path: |
+          ~/.arduino15/packages/arduino/hardware/avr
+          ~/.arduino15/packages/arduino/tools/avr-gcc
+        key: ${{ runner.os }}-arduino-avr-tools
 
     - name: 4. Install Arduino AVR Core
       # This step will be skipped if the cache was found
-      if: steps.cache-avr-core.outputs.cache-hit != 'true'
+      if: steps.cache-arduino.outputs.cache-hit != 'true'
       run: |
         arduino-cli core update-index
         arduino-cli core install arduino:avr
@@ -44,7 +44,7 @@ jobs:
 
     - name: 6. Upload firmware artifact
       # This step will be skipped when running locally with act
-      if: ${{ env.ACTIONS_RUNTIME_TOKEN != '' }}
+      if: ${{ env.ACT != 'true' }}
       uses: actions/upload-artifact@v4
       with:
         name: nano-firmware

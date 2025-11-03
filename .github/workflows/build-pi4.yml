@@ -1,4 +1,4 @@
-name: Build Pi 4 Worker Image
+name: Build Pi 4 Image
 
 on:
   push:
@@ -38,7 +38,7 @@ jobs:
       run: |
         # This whole step will be skipped if the cache was found
         echo "Downloading Base OS..."
-        wget https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2025-10-02/2025-10-01-raspios-trixie-arm64-lite.img.xz
+        wget -nv https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2025-10-02/2025-10-01-raspios-trixie-arm64-lite.img.xz
         echo "Decompressing..."
         unxz 2025-10-01-raspios-trixie-arm64-lite.img.xz
         # Rename it to what Packer expects
@@ -107,7 +107,7 @@ jobs:
 
     - name: 6. Upload Pi 4 image artifact
       # skip upload if running locally (this token will not be present in the GitHub Local Actions VS Code Extension)
-      if: ${{ env.ACTIONS_RUNTIME_TOKEN != '' }}
+      if: ${{ env.ACT != 'true' }}
       uses: actions/upload-artifact@v4
       with:
         name: pi4-worker-image
