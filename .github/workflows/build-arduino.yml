@@ -42,6 +42,7 @@ jobs:
       run: |
         arduino-cli compile \
           --fqbn arduino:avr:nano \
+          --build-path ./build \
           ./power_controller_nano/power_controller_nano.ino
 
     - name: 6. Upload firmware artifact
@@ -50,4 +51,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: nano-firmware
-        path: ./power_controller_nano/build/arduino.avr.nano/power_controller_nano.ino.hex
+        path: ./build/power_controller_nano.ino.hex
