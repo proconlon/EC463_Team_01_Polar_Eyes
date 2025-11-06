@@ -1,1 +1,3 @@
---privileged
+--container-options "--privileged"
+-w .
+--secret-file .secrets

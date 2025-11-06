@@ -13,3 +13,9 @@ Must run:
 ```
 sudo modprobe loop
 ```
+
+When run with Act locally, the built file is located at 
+
+```sh
+./build/polar-eyes-worker-v...img
+```
