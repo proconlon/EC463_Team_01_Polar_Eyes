@@ -44,6 +44,15 @@ echo "Copying project files..."
 sudo cp /usr/bin/qemu-arm-static $MOUNT_DIR/usr/bin/
 sudo rsync -av --exclude='base-raspios-lite-arm64.img' --exclude='base-raspios-lite-arm64.PRISTINE.img' --exclude='build/' --exclude='actions-runner/' --exclude='.git/' $GITHUB_WORKSPACE/ $MOUNT_DIR/opt/polar-eyes/
 
+# Enable ssh. Username dev, ask James for login password
+echo "Creating 'dev' user and enabling SSH..."
+echo 'dev:$6$8QX8/V.NUD5DCbRS$pvJkm1aIFeOvbh4.7dB2wxxg08dQTBFm6KHJvdBTfZCS3P0i8K8jBfzNdDCjjvDLoFwRwoRwewGULYu469RbA1' | sudo tee $MOUNT_DIR/boot/firmware/userconf.txt > /dev/null
+# set SSH enable file
+sudo touch $MOUNT_DIR/boot/firmware/ssh
+# also set default static ip
+sudo sed -i '1 s/$/ ip=192.168.2.100/' $MOUNT_DIR/boot/firmware/cmdline.txt
+# ssh dev@192.168.2.100 to access over ethernet
+
 echo "Setting executable permission on setup script..."
 SCRIPT_PATH="/opt/polar-eyes/storage_pi_four/setup_worker.sh"
 sudo chmod +x $MOUNT_DIR/$SCRIPT_PATH
