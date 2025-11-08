@@ -1,0 +1,11 @@
+[Unit]
+Description=Polar Eyes Worker Triage Service
+# DefaultDependencies=false
+After=local-fs.target      # Wait for filesystems (good)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/worker_triage.sh
+
+[Install]
+WantedBy=multi-user.target
