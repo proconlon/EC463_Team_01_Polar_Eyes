@@ -1,3 +1,6 @@
+// NOT USING PACKER ANY MORE (WAS MISSING GOOD ARM BUILDERS)
+
+
 // This file is the "recipe" for Packer to build our bootable SD card image.
 // It tells Packer to:
 // 1. Start with a specific, "frozen" RPi OS Lite image.
@@ -38,6 +41,6 @@ build {
   
   // 3. Run our setup script INSIDE the image
   provisioner "shell" {
-    script = "/opt/polar-eyes/storage_pi_four/setup_worker.sh"
+    script = "/opt/polar-eyes/storage_pi_four/build-scripts/setup_worker.sh"
   }
 }

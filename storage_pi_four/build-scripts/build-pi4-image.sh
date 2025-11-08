@@ -6,6 +6,38 @@
 
 set -e
 
+# --- [START NEW CODE] ---
+
+MOUNT_DIR="/mnt/raspi-root"
+LOOP_DEV="" # Will be set later
+
+# Define a cleanup function
+cleanup() {
+    echo "--- [BUILD SCRIPT] Cleaning up ---"
+    
+    # Check if mount points exist before trying to unmount
+    if mountpoint -q "$MOUNT_DIR/sys"; then sudo umount "$MOUNT_DIR/sys"; fi
+    if mountpoint -q "$MOUNT_DIR/proc"; then sudo umount "$MOUNT_DIR/proc"; fi
+    if mountpoint -q "$MOUNT_DIR/dev/pts"; then sudo umount "$MOUNT_DIR/dev/pts"; fi
+    if mountpoint -q "$MOUNT_DIR/dev"; then sudo umount "$MOUNT_DIR/dev"; fi
+    
+    if mountpoint -q "$MOUNT_DIR/boot/firmware"; then sudo umount "$MOUNT_DIR/boot/firmware"; fi
+    if mountpoint -q "$MOUNT_DIR"; then sudo umount "$MOUNT_DIR"; fi
+    
+    # Detach loop device only if it was set
+    if [ -n "$LOOP_DEV" ] && [ -b "$LOOP_DEV" ]; then
+        echo "Detaching $LOOP_DEV..."
+        sudo kpartx -dv "$LOOP_DEV"
+        sudo losetup -d "$LOOP_DEV"
+    fi
+    echo "--- [BUILD SCRIPT] Cleanup complete ---"
+}
+
+# Set the trap: This tells bash to run cleanup() on ANY exit
+# (success, error, or interrupt)
+trap cleanup EXIT
+
+
 IMAGE_FILE="$GITHUB_WORKSPACE/base-raspios-lite-arm64.img"
 BUILD_NUMBER="${GITHUB_RUN_NUMBER:-local}" # Use "local" if no run number
 
@@ -49,28 +81,29 @@ echo "Creating 'dev' user and enabling SSH..."
 echo 'dev:$6$8QX8/V.NUD5DCbRS$pvJkm1aIFeOvbh4.7dB2wxxg08dQTBFm6KHJvdBTfZCS3P0i8K8jBfzNdDCjjvDLoFwRwoRwewGULYu469RbA1' | sudo tee $MOUNT_DIR/boot/firmware/userconf.txt > /dev/null
 # set SSH enable file
 sudo touch $MOUNT_DIR/boot/firmware/ssh
-# also set default static ip
-sudo sed -i '1 s/$/ ip=192.168.2.100/' $MOUNT_DIR/boot/firmware/cmdline.txt
+
+# also set default static ip (removed, letting dhcp handle it for now)
+# sudo sed -i '1 s/$/ ip=192.168.2.100/' $MOUNT_DIR/boot/firmware/cmdline.txt
 # ssh dev@192.168.2.100 to access over ethernet
 
 echo "Setting executable permission on setup script..."
-SCRIPT_PATH="/opt/polar-eyes/storage_pi_four/setup_worker.sh"
+SCRIPT_PATH="/opt/polar-eyes/storage_pi_four/build-scripts/setup_worker.sh"
 sudo chmod +x $MOUNT_DIR/$SCRIPT_PATH
 
 echo "Running setup script inside chroot..."
 sudo chroot $MOUNT_DIR /bin/bash -c "$SCRIPT_PATH"
 
-echo "Cleaning up..."
-sudo umount $MOUNT_DIR/sys
-sudo umount $MOUNT_DIR/proc
-sudo umount $MOUNT_DIR/dev/pts
-sudo umount $MOUNT_DIR/dev
+# echo "Cleaning up..."
+# sudo umount $MOUNT_DIR/sys
+# sudo umount $MOUNT_DIR/proc
+# sudo umount $MOUNT_DIR/dev/pts
+# sudo umount $MOUNT_DIR/dev
 
-sudo umount $MOUNT_DIR/boot/firmware
-sudo umount $MOUNT_DIR
+# sudo umount $MOUNT_DIR/boot/firmware
+# sudo umount $MOUNT_DIR
 
-sudo kpartx -dv $LOOP_DEV
-sudo losetup -d $LOOP_DEV
+# sudo kpartx -dv $LOOP_DEV
+# sudo losetup -d $LOOP_DEV
 
 echo "Finalizing artifact..."
 mkdir -p $GITHUB_WORKSPACE/build
