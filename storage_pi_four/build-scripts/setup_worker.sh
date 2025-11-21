@@ -61,24 +61,28 @@ chmod +x /usr/local/bin/worker_triage.sh
 cp /opt/polar-eyes/storage_pi_four/worker-boot.service /etc/systemd/system/worker-boot.service
 systemctl enable worker-boot.service
 
-# ----------------------------------------------------------------
 echo "Setting up Insta360 SDK..."
 
 # 1. Create a clean home for the app and sdk
 mkdir -p /opt/polar-eyes/bin
 mkdir -p /opt/polar-eyes/sdk
 
-# 2. Find the SDK folder (handles version number changes automatically)
-# We look for the folder containing 'libMediaSDK.so' inside the repo
-RAW_SDK_DIR=$(find /opt/polar-eyes -type f -name "libCameraSDK.so" | head -n 1 | xargs dirname | xargs dirname)
+# 2. Safer Search: Find the file first, THEN process it
+echo "Looking for libCameraSDK.so..."
+SDK_FILE=$(find /opt/polar-eyes -type f -name "libCameraSDK.so" | head -n 1)
 
-if [ -d "$RAW_SDK_DIR" ]; then
+if [ -n "$SDK_FILE" ]; then
+    # File found! Determine the directory.
+    # We use dirname twice to go from /lib/libCameraSDK.so -> /lib -> /SDK_ROOT
+    RAW_SDK_DIR=$(dirname "$(dirname "$SDK_FILE")")
+    
     echo "Found SDK at: $RAW_SDK_DIR"
-    # Copy the CONTENTS of the SDK dir to our stable path
-    cp -r $RAW_SDK_DIR/* /opt/polar-eyes/sdk/
-    echo "SDK installed to /opt/polar-eyes/sdk"
+    cp -r "$RAW_SDK_DIR"/* /opt/polar-eyes/sdk/
+    echo "SDK installed successfully."
 else
-    echo "WARNING: SDK directory not found. Real camera control will fail."
+    # File not found - Skip gracefully
+    echo "WARNING: libCameraSDK.so not found in build context."
+    echo "Skipping SDK installation. You must manually copy the SDK to /opt/polar-eyes/sdk/ on the device later."
 fi
 
 # 3. Install the C++ Binary
