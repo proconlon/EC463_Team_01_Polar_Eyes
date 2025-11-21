@@ -13,7 +13,7 @@ echo "--- [WORKER PI SETUP] Starting ---"
 
 echo "Installing dependencies..."
 apt-get update
-apt-get install -y curl mdadm xfsprogs gdisk logrotate g++ make
+apt-get install -y curl mdadm xfsprogs gdisk logrotate g++ make python3-rpi.gpio
 
 # install tailscale for access
 # will remove for prod, just for dev
@@ -61,13 +61,46 @@ chmod +x /usr/local/bin/worker_triage.sh
 cp /opt/polar-eyes/storage_pi_four/worker-boot.service /etc/systemd/system/worker-boot.service
 systemctl enable worker-boot.service
 
+# ----------------------------------------------------------------
+echo "Setting up Insta360 SDK..."
 
-# Demo scripts for 11/11 Demo day
-cp /opt/polar-eyes/storage_pi_four/dev-scripts/mock_timelapse.sh /usr/local/bin/timelapse_capture
-cp /opt/polar-eyes/storage_pi_four/dev-scripts/mock_event.sh /usr/local/bin/event_capture
-chmod +x /usr/local/bin/timelapse_capture
-chmod +x /usr/local/bin/event_capture
+# 1. Create a clean home for the app and sdk
+mkdir -p /opt/polar-eyes/bin
+mkdir -p /opt/polar-eyes/sdk
 
+# 2. Find the SDK folder (handles version number changes automatically)
+# We look for the folder containing 'libMediaSDK.so' inside the repo
+RAW_SDK_DIR=$(find /opt/polar-eyes -type f -name "libCameraSDK.so" | head -n 1 | xargs dirname | xargs dirname)
+
+if [ -d "$RAW_SDK_DIR" ]; then
+    echo "Found SDK at: $RAW_SDK_DIR"
+    # Copy the CONTENTS of the SDK dir to our stable path
+    cp -r $RAW_SDK_DIR/* /opt/polar-eyes/sdk/
+    echo "SDK installed to /opt/polar-eyes/sdk"
+else
+    echo "WARNING: SDK directory not found. Real camera control will fail."
+fi
+
+# 3. Install the C++ Binary
+# Assuming your compiled binary is named 'camera_control'
+# If you have 4 separate binaries, copy them all here.
+if [ -f "/opt/polar-eyes/storage_pi_four/camera_control" ]; then
+    cp /opt/polar-eyes/storage_pi_four/camera_control /opt/polar-eyes/bin/
+    chmod +x /opt/polar-eyes/bin/camera_control
+    echo "Binary installed to /opt/polar-eyes/bin/camera_control"
+fi
+
+cp /opt/polar-eyes/storage_pi_four/dev-scripts/take_photo.sh /usr/local/bin/take_photo
+cp /opt/polar-eyes/storage_pi_four/dev-scripts/start_video.sh /usr/local/bin/start_video
+cp /opt/polar-eyes/storage_pi_four/dev-scripts/stop_video.sh /usr/local/bin/stop_video
+cp /opt/polar-eyes/storage_pi_four/dev-scripts/download_all_data.sh /usr/local/bin/download_all_data
+
+cp /opt/polar-eyes/storage_pi_four/read_gpio.py /usr/local/bin/read_gpio.py
+chmod +x /usr/local/bin/take_photo
+chmod +x /usr/local/bin/start_video
+chmod +x /usr/local/bin/stop_video
+chmod +x /usr/local/bin/download_all_data
+chmod +x /usr/local/bin/read_gpio.py
 
 touch /var/log/polar_eyes.log
 chmod 666 /var/log/polar_eyes.log

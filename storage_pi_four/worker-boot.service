@@ -1,7 +1,9 @@
 [Unit]
 Description=Polar Eyes Worker Triage Service
-# DefaultDependencies=false
-After=local-fs.target      # Wait for filesystems (good)
+# This ensures the script runs ONLY after the RAID is mounted.
+# Systemd reads /etc/fstab and creates a .mount unit automatically.
+Requires=mnt-raid.mount
+After=mnt-raid.mount
 
 [Service]
 Type=oneshot

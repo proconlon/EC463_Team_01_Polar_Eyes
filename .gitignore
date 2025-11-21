@@ -73,4 +73,6 @@ packer_cache/
 
 # Github actions runner
 actions-runner/
-.secrets
+.secrets.vscode/
+CameraSDK*.gz
+CameraSDK*/

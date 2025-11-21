@@ -1,0 +1,13 @@
+[Unit]
+Description=Polar Eyes Shutter Listener
+After=network.target local-fs.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/python3 /usr/local/bin/shutter_listener.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

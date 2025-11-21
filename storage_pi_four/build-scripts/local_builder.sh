@@ -27,7 +27,7 @@ IMG_FILE="$GITHUB_WORKSPACE/base-raspios-lite-arm64.img" # working copy
 
 echo "Checking dependencies..."
 # some dependencies are in the build-pi-4-image.sh script, so check those here too.
-for cmd in wget unxz qemu-arm-static kpartx rsync sudo losetup; do
+for cmd in wget unxz qemu-arm-static kpartx rsync sudo losetup parted; do
   if ! command -v $cmd &> /dev/null; then
     echo "::error:: Command not found: $cmd"
     echo "Please install it and try again."
@@ -64,7 +64,26 @@ fi
 
 # Always create a fresh working copy from the pristine image
 echo "Creating fresh working copy for the build..."
+rm -f "$IMG_FILE"
 cp "$PRISTINE_IMG_FILE" "$IMG_FILE"
+
+echo "Expanding image file by 2GB..."
+# 1. Append 2GB of zero-filled space to the image file
+truncate -s +2G "$IMG_FILE"
+
+# 2. Expand the second partition (rootfs) to fill the new space
+# Note: 'parted' is generally safe for scripting partition tables
+sudo parted -s "$IMG_FILE" resizepart 2 100%
+
+# 3. Resize the filesystem to match the new partition size
+# We must mount it as a loop device briefly to run resize2fs
+echo "Resizing filesystem..."
+LOOP_DEV=$(sudo losetup -P -f --show "$IMG_FILE")
+# Force check is sometimes required before resize
+sudo e2fsck -f -p "${LOOP_DEV}p2" || true 
+sudo resize2fs "${LOOP_DEV}p2"
+sudo losetup -d "$LOOP_DEV"
+echo "Image expansion complete."
 
 # run the build script
 echo "Starting local build..."
