@@ -13,7 +13,7 @@ echo "--- [WORKER PI SETUP] Starting ---"
 
 echo "Installing dependencies..."
 apt-get update
-apt-get install -y curl mdadm xfsprogs gdisk logrotate g++ make
+apt-get install -y curl mdadm xfsprogs gdisk logrotate g++ make python3-rpi.gpio
 
 # install tailscale for access
 # will remove for prod, just for dev
@@ -61,13 +61,50 @@ chmod +x /usr/local/bin/worker_triage.sh
 cp /opt/polar-eyes/storage_pi_four/worker-boot.service /etc/systemd/system/worker-boot.service
 systemctl enable worker-boot.service
 
+echo "Setting up Insta360 SDK..."
 
-# Demo scripts for 11/11 Demo day
-cp /opt/polar-eyes/storage_pi_four/dev-scripts/mock_timelapse.sh /usr/local/bin/timelapse_capture
-cp /opt/polar-eyes/storage_pi_four/dev-scripts/mock_event.sh /usr/local/bin/event_capture
-chmod +x /usr/local/bin/timelapse_capture
-chmod +x /usr/local/bin/event_capture
+# 1. Create a clean home for the app and sdk
+mkdir -p /opt/polar-eyes/bin
+mkdir -p /opt/polar-eyes/sdk
 
+# 2. Safer Search: Find the file first, THEN process it
+echo "Looking for libCameraSDK.so..."
+SDK_FILE=$(find /opt/polar-eyes -type f -name "libCameraSDK.so" | head -n 1)
+
+if [ -n "$SDK_FILE" ]; then
+    # File found! Determine the directory.
+    # We use dirname twice to go from /lib/libCameraSDK.so -> /lib -> /SDK_ROOT
+    RAW_SDK_DIR=$(dirname "$(dirname "$SDK_FILE")")
+    
+    echo "Found SDK at: $RAW_SDK_DIR"
+    cp -r "$RAW_SDK_DIR"/* /opt/polar-eyes/sdk/
+    echo "SDK installed successfully."
+else
+    # File not found - Skip gracefully
+    echo "WARNING: libCameraSDK.so not found in build context."
+    echo "Skipping SDK installation. You must manually copy the SDK to /opt/polar-eyes/sdk/ on the device later."
+fi
+
+# 3. Install the C++ Binary
+# Assuming your compiled binary is named 'camera_control'
+# If you have 4 separate binaries, copy them all here.
+if [ -f "/opt/polar-eyes/storage_pi_four/camera_control" ]; then
+    cp /opt/polar-eyes/storage_pi_four/camera_control /opt/polar-eyes/bin/
+    chmod +x /opt/polar-eyes/bin/camera_control
+    echo "Binary installed to /opt/polar-eyes/bin/camera_control"
+fi
+
+cp /opt/polar-eyes/storage_pi_four/dev-scripts/take_photo.sh /usr/local/bin/take_photo
+cp /opt/polar-eyes/storage_pi_four/dev-scripts/start_video.sh /usr/local/bin/start_video
+cp /opt/polar-eyes/storage_pi_four/dev-scripts/stop_video.sh /usr/local/bin/stop_video
+cp /opt/polar-eyes/storage_pi_four/dev-scripts/download_all_data.sh /usr/local/bin/download_all_data
+
+cp /opt/polar-eyes/storage_pi_four/read_gpio.py /usr/local/bin/read_gpio.py
+chmod +x /usr/local/bin/take_photo
+chmod +x /usr/local/bin/start_video
+chmod +x /usr/local/bin/stop_video
+chmod +x /usr/local/bin/download_all_data
+chmod +x /usr/local/bin/read_gpio.py
 
 touch /var/log/polar_eyes.log
 chmod 666 /var/log/polar_eyes.log

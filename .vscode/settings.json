@@ -1,0 +1,8 @@
+{
+    "github-actions.workflows.extra-args": [
+      "--secret-file",
+      "${workspaceFolder}/.secrets",
+      "-w",
+      "${workspaceFolder}"
+    ]
+  }
