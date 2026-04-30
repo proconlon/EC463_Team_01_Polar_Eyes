@@ -4,12 +4,28 @@
 
 # Polar Eyes
 
-[![Sentry Firmware](https://github.com/BU-EC463/EC463_Team_01_Polar_Eyes/actions/workflows/build-arduino.yml/badge.svg)](.github/workflows/build-arduino.yml)
-[![Pi 4 Image](https://github.com/BU-EC463/EC463_Team_01_Polar_Eyes/actions/workflows/build-pi4.yml/badge.svg)](.github/workflows/build-pi4.yml)
+[![Sentry Firmware](https://github.com/BU-EC463/EC463_Team_01_Polar_Eyes/actions/workflows/build-arduino.yml/badge.svg?branch=main)](https://github.com/BU-EC463/EC463_Team_01_Polar_Eyes/actions/workflows/build-arduino.yml)
+[![Pi 4 Image](https://github.com/BU-EC463/EC463_Team_01_Polar_Eyes/actions/workflows/build-pi4.yml/badge.svg?branch=main)](https://github.com/BU-EC463/EC463_Team_01_Polar_Eyes/actions/workflows/build-pi4.yml)
 
 **Polar Eyes** is an autonomous, ultra-low-power 360° wildlife monitoring platform built for unattended sub-zero Arctic deployments. A single weatherized unit pairs an above-ice and below-ice Insta360 X5 camera with a multi-sensor trigger stack and a solar-buffered battery, designed to run **unattended for ≥ 90 days** between service visits.
 
 The system is a **dual-node, asymmetric architecture** that decouples always-on sensing from on-demand compute — the only practical way to hit the energy budget while still capturing high-resolution imagery and video on a real wildlife event.
+
+---
+
+## Project Highlights
+
+<p align="center">
+  <img src="./images/hero.png" width="70%" alt="Polar Eyes field prototype and team">
+  <br>
+  <em>Field-ready prototype and integration team.</em>
+</p>
+
+<p align="center">
+  <img src="./images/pcb_final.png" width="50%" alt="Polar Eyes sentry PCB final revision">
+  <br>
+  <em>Custom sentry PCB (final revision): ItsyBitsy carrier, PIR front-end, radar gating, and worker trigger outputs.</em>
+</p>
 
 ---
 
@@ -32,9 +48,15 @@ The system is a **dual-node, asymmetric architecture** that decouples always-on 
 ```
 
 <p align="center">
-  <img src="./images/data_arch.png" width="80%" alt="Polar Eyes data architecture">
+  <img src="./images/data_arch.png" width="60%" alt="Polar Eyes data architecture">
   <br>
   <em>End-to-end data flow: sentry detection → worker capture → on-device storage.</em>
+</p>
+
+<p align="center">
+  <img src="./images/dual_stage_state_machine.png" width="40%" alt="Dual-stage sentry state machine">
+  <br>
+  <em>Sentry dual-stage state machine: PIR detection opens a radar verification window before triggering the worker.</em>
 </p>
 
 ### Sentry Node — `sentry_itsybitsy/`
@@ -42,12 +64,6 @@ The system is a **dual-node, asymmetric architecture** that decouples always-on 
 An Adafruit ItsyBitsy MCU that **never sleeps**. It draws under 10 mW while monitoring six analog PIR sensors and gating power to two mmWave radar modules. The radar window only opens after a PIR rising edge, which keeps the radar's ~80 mW load dark for the vast majority of operating time.
 
 When the sentry confirms a detection (PIR + debounced radar), or when its periodic timelapse timer elapses, it pulses the worker's shutter line *and* the worker's safety-boot line in unison. A 45-second hardware debounce prevents trigger thrashing.
-
-<p align="center">
-  <img src="./images/pcb_final.png" width="70%" alt="Polar Eyes sentry PCB (final revision)">
-  <br>
-  <em>Final sentry PCB — ItsyBitsy carrier with PIR front-ends, gated radar power, and Pi trigger headers.</em>
-</p>
 
 ### Worker Node — `worker_pi_five/`
 
@@ -69,9 +85,9 @@ A separate Pi 4 RAID-storage node (`storage_pi_four/`) is included in the repo f
 A 90-day deployment with a 100 Wh battery + small solar trickle is the design point. The asymmetric sentry/worker split is what makes that arithmetic close.
 
 <p align="center">
-  <img src="./images/power_diagram.png" width="80%" alt="Polar Eyes power architecture">
+  <img src="./images/power_diagram.png" width="60%" alt="Polar Eyes power architecture diagram">
   <br>
-  <em>Power architecture: solar harvest → battery buffer → regulated rails to sentry (always-on) and worker (gated).</em>
+  <em>Power architecture used to keep always-on draw low while allowing high-power capture bursts.</em>
 </p>
 
 ---
@@ -87,6 +103,8 @@ A 90-day deployment with a 100 Wh battery + small solar trickle is the design po
 │   ├── camera_sdk/             C++ Insta360 control app + Insta360 SDK
 │   ├── config/                 systemd unit (polar-listener.service)
 │   └── setup_pi_five.sh        On-Pi deployment installer
+├── samples/                  Example telemetry and media artifacts
+├── hardware/                 PCB/CAD/BOM planning + source placeholders
 ├── storage_pi_four/          Pi 4 RAID node (reference / not currently used)
 ├── docs/                     Project + module documentation
 ├── images/                   Diagrams + team photos
@@ -121,6 +139,7 @@ make compile          # or: make upload PORT=/dev/ttyUSB0
 ## Documentation
 
 - **[Installation Guide](docs/INSTALL.md)** — clone → deploy → run
+- **[Architecture Deep Dive](docs/architecture.md)** — state machines, interfaces, and event flow
 - **[Insta360 Control](docs/insta360_control.md)** — C++ camera_control reference
 - **[Insta360 Quick Start](docs/insta360_quickstart.md)** — usage cheatsheet
 - **[Pi 4 RAID Notes](storage_pi_four/README.md)** — reference (not in active deployment)
