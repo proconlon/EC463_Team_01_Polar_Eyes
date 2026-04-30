@@ -4,8 +4,8 @@
 
 # Polar Eyes
 
-[![Sentry Firmware](https://github.com/BU-EC463/EC463_Team_01_Polar_Eyes/actions/workflows/build-arduino.yml/badge.svg?branch=main)](https://github.com/BU-EC463/EC463_Team_01_Polar_Eyes/actions/workflows/build-arduino.yml)
-[![Pi 4 Image](https://github.com/BU-EC463/EC463_Team_01_Polar_Eyes/actions/workflows/build-pi4.yml/badge.svg?branch=main)](https://github.com/BU-EC463/EC463_Team_01_Polar_Eyes/actions/workflows/build-pi4.yml)
+[![Sentry Firmware](https://github.com/proconlon/EC463_Team_01_Polar_Eyes/actions/workflows/build-arduino.yml/badge.svg?branch=main)](https://github.com/proconlon/EC463_Team_01_Polar_Eyes/actions/workflows/build-arduino.yml)
+[![Pi 4 Image](https://github.com/proconlon/EC463_Team_01_Polar_Eyes/actions/workflows/build-pi4.yml/badge.svg?branch=main)](https://github.com/proconlon/EC463_Team_01_Polar_Eyes/actions/workflows/build-pi4.yml)
 
 **Polar Eyes** is an autonomous, ultra-low-power 360° wildlife monitoring platform built for unattended sub-zero Arctic deployments. A single weatherized unit pairs an above-ice and below-ice Insta360 X5 camera with a multi-sensor trigger stack and a solar-buffered battery, designed to run **unattended for ≥ 90 days** between service visits.
 
