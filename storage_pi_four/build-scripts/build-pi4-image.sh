@@ -11,26 +11,57 @@ set -e
 MOUNT_DIR="/mnt/raspi-root"
 LOOP_DEV="" # Will be set later
 
-# Define a cleanup function
+# Define a cleanup function.
+# Robust against transient "target is busy" errors from chroot post-install
+# scripts (mdadm, tailscale, update-initramfs, etc.) that leave file
+# descriptors briefly open under /sys, /proc, /dev.
 cleanup() {
+    # Disable -e inside cleanup: a single failed umount must not abort the
+    # rest of the teardown, or the loop device leaks and the runner fails
+    # with a misleading exit code.
+    set +e
+
     echo "--- [BUILD SCRIPT] Cleaning up ---"
-    
-    # Check if mount points exist before trying to unmount
-    if mountpoint -q "$MOUNT_DIR/sys"; then sudo umount "$MOUNT_DIR/sys"; fi
-    if mountpoint -q "$MOUNT_DIR/proc"; then sudo umount "$MOUNT_DIR/proc"; fi
-    if mountpoint -q "$MOUNT_DIR/dev/pts"; then sudo umount "$MOUNT_DIR/dev/pts"; fi
-    if mountpoint -q "$MOUNT_DIR/dev"; then sudo umount "$MOUNT_DIR/dev"; fi
-    
-    if mountpoint -q "$MOUNT_DIR/boot/firmware"; then sudo umount "$MOUNT_DIR/boot/firmware"; fi
-    if mountpoint -q "$MOUNT_DIR"; then sudo umount "$MOUNT_DIR"; fi
-    
+
+    # Flush pending writes and give chroot-spawned helpers a moment to exit
+    sync
+    sleep 1
+
+    # Try a clean unmount up to 3 times, then fall back to lazy unmount
+    # (safe for the bind-mounted pseudo-filesystems and acceptable for the
+    # rootfs/firmware partitions because we already sync'd).
+    safe_umount() {
+        local target="$1"
+        if ! mountpoint -q "$target"; then return 0; fi
+        local i
+        for i in 1 2 3; do
+            if sudo umount "$target" 2>/dev/null; then
+                return 0
+            fi
+            sleep 1
+        done
+        echo "WARNING: $target still busy; falling back to lazy unmount"
+        sudo umount -l "$target" 2>/dev/null || true
+    }
+
+    # Tear down inner binds first
+    safe_umount "$MOUNT_DIR/sys"
+    safe_umount "$MOUNT_DIR/proc"
+    safe_umount "$MOUNT_DIR/dev/pts"
+    safe_umount "$MOUNT_DIR/dev"
+
+    # Then the real partitions on the loop device
+    safe_umount "$MOUNT_DIR/boot/firmware"
+    safe_umount "$MOUNT_DIR"
+
     # Detach loop device only if it was set
     if [ -n "$LOOP_DEV" ] && [ -b "$LOOP_DEV" ]; then
         echo "Detaching $LOOP_DEV..."
-        sudo kpartx -dv "$LOOP_DEV"
-        sudo losetup -d "$LOOP_DEV"
+        sudo kpartx -dv "$LOOP_DEV" || true
+        sudo losetup -d "$LOOP_DEV" || true
     fi
     echo "--- [BUILD SCRIPT] Cleanup complete ---"
+    return 0
 }
 
 # Set the trap: This tells bash to run cleanup() on ANY exit
@@ -57,8 +88,7 @@ echo "Image attached to $LOOP_DEV"
 sudo kpartx -av $LOOP_DEV
 
 echo "Mounting filesystems..."
-MOUNT_DIR="/mnt/raspi-root"
-sudo mkdir -p $MOUNT_DIR
+sudo mkdir -p "$MOUNT_DIR"
 
 sleep 2
 LOOP_NAME=$(basename $LOOP_DEV)

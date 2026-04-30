@@ -1,41 +1,11 @@
-# 02-Team Repo
-Template for team repo
-
 <p align="center">
-<img src="./images/thisismyteam.png" width="50%">
+  <img src="./images/team_logo_text.png" width="65%" alt="Polar Eyes — Arctic Core">
 </p>
-<p align="center">
-This is my team
-</p>
-
-## Team links
-- [Team Google Drive](https://drive.google.com/drive/folders/1AwAs2-8CEy-OaSo67aLub-TKVIZZDuBV?usp=drive_link)
-
-## Course links
-- [ECE Senior Design Piazza Site](https://piazza.com/bu/fall2025/ec463/home)
-- [Blackboard](http://learn.bu.edu/)
-
-
-## Optional features links
-- Team Jira
-- Team Confluence
-- Something else
-
-## Project Overview
-We plan to develop a fully enclosed and weather safe unit that is easily reproducible into multiple units for remote polar observation across multiple remote sites. We want to deliver two 360 degree cameras with video capability with one above the ice surface and one hung below a drilled hole into the water below the ice. For that reason, the unit needs to be weather resistant to extreme cold and darkness while also preventing ice melt.
-
-
-
-
 
 # Polar Eyes
 
 [![Sentry Firmware](https://github.com/BU-EC463/EC463_Team_01_Polar_Eyes/actions/workflows/build-arduino.yml/badge.svg)](.github/workflows/build-arduino.yml)
 [![Pi 4 Image](https://github.com/BU-EC463/EC463_Team_01_Polar_Eyes/actions/workflows/build-pi4.yml/badge.svg)](.github/workflows/build-pi4.yml)
-
-<p align="center">
-  <img src="./images/thisismyteam.png" width="55%" alt="Polar Eyes Team">
-</p>
 
 **Polar Eyes** is an autonomous, ultra-low-power 360° wildlife monitoring platform built for unattended sub-zero Arctic deployments. A single weatherized unit pairs an above-ice and below-ice Insta360 X5 camera with a multi-sensor trigger stack and a solar-buffered battery, designed to run **unattended for ≥ 90 days** between service visits.
 
@@ -61,11 +31,23 @@ The system is a **dual-node, asymmetric architecture** that decouples always-on 
    └──────────────────────────┘         └──────────────────────────┘
 ```
 
+<p align="center">
+  <img src="./images/data_arch.png" width="80%" alt="Polar Eyes data architecture">
+  <br>
+  <em>End-to-end data flow: sentry detection → worker capture → on-device storage.</em>
+</p>
+
 ### Sentry Node — `sentry_itsybitsy/`
 
 An Adafruit ItsyBitsy MCU that **never sleeps**. It draws under 10 mW while monitoring six analog PIR sensors and gating power to two mmWave radar modules. The radar window only opens after a PIR rising edge, which keeps the radar's ~80 mW load dark for the vast majority of operating time.
 
 When the sentry confirms a detection (PIR + debounced radar), or when its periodic timelapse timer elapses, it pulses the worker's shutter line *and* the worker's safety-boot line in unison. A 45-second hardware debounce prevents trigger thrashing.
+
+<p align="center">
+  <img src="./images/pcb_final.png" width="70%" alt="Polar Eyes sentry PCB (final revision)">
+  <br>
+  <em>Final sentry PCB — ItsyBitsy carrier with PIR front-ends, gated radar power, and Pi trigger headers.</em>
+</p>
 
 ### Worker Node — `worker_pi_five/`
 
@@ -85,6 +67,12 @@ A separate Pi 4 RAID-storage node (`storage_pi_four/`) is included in the repo f
 | Camera (Insta360)| 0 mW (off)| ~5 W       | event-driven | ~50 mW        |
 
 A 90-day deployment with a 100 Wh battery + small solar trickle is the design point. The asymmetric sentry/worker split is what makes that arithmetic close.
+
+<p align="center">
+  <img src="./images/power_diagram.png" width="80%" alt="Polar Eyes power architecture">
+  <br>
+  <em>Power architecture: solar harvest → battery buffer → regulated rails to sentry (always-on) and worker (gated).</em>
+</p>
 
 ---
 
@@ -136,8 +124,20 @@ make compile          # or: make upload PORT=/dev/ttyUSB0
 - **[Insta360 Control](docs/insta360_control.md)** — C++ camera_control reference
 - **[Insta360 Quick Start](docs/insta360_quickstart.md)** — usage cheatsheet
 - **[Pi 4 RAID Notes](storage_pi_four/README.md)** — reference (not in active deployment)
+- **[BU Senior Design Poster (PDF, 40×30 in)](docs/Polar%20Eyes%20BU%20Poster%2040x30.pdf)** — final project poster
 
-## Team Links
+## Team
+
+<p align="center">
+  <img src="./images/thisismyteam.png" width="55%" alt="Polar Eyes Team">
+</p>
+
+<div align="center">
+
+| James Conlon | Jackson Clary | Aidan Born | Hieu Nguyen | Zixian Wang |
+|:---:|:---:|:---:|:---:|:---:|
+
+</div>
 
 - [Team Google Drive](https://drive.google.com/drive/folders/1AwAs2-8CEy-OaSo67aLub-TKVIZZDuBV?usp=drive_link)
 - [ECE Senior Design Piazza](https://piazza.com/bu/fall2025/ec463/home)
@@ -145,4 +145,4 @@ make compile          # or: make upload PORT=/dev/ttyUSB0
 
 ---
 
-*EC463 Senior Design — Boston University, Team 01*
+*EC463/EC464 Senior Design — Boston University, Team 01, 2025-26*
