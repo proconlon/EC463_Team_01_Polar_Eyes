@@ -1,5 +1,9 @@
 James
 
+> **NOTE:** The Pi 4 RAID node described in this folder is **not currently used** in
+> the active Polar Eyes deployment. The Pi 5 worker (`worker_pi_five/`) is the
+> live storage and capture node. Files here are kept for reference / future use.
+
 The raspberry pi 4 is tentatively going to be for RAID only. The images will be passed here via ethernet from the Pi zero 2W.
 
 The pi 4 will be on intermittently only (currently estimaging every 30min) until all images have been transferred and then shutdown clean.

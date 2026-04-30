@@ -3,11 +3,11 @@ name: Build Arduino Firmware
 on:
   push:
     paths:
-      - 'power_controller_nano/**' # Only run when Nano code changes
+      - 'sentry_itsybitsy/**' # Only run when sentry firmware changes
       - '.github/workflows/build-arduino.yml'
   pull_request:
     paths:
-      - 'power_controller_nano/**'
+      - 'sentry_itsybitsy/**'
       - '.github/workflows/build-arduino.yml'
 
 jobs:
@@ -43,12 +43,12 @@ jobs:
         arduino-cli compile \
           --fqbn arduino:avr:nano \
           --build-path ./build \
-          ./power_controller_nano/power_controller_nano.ino
+          ./sentry_itsybitsy/sentry_itsybitsy.ino
 
     - name: 6. Upload firmware artifact
       # This step will be skipped when running locally with act
       if: ${{ env.ACT != 'true' }}
       uses: actions/upload-artifact@v4
       with:
-        name: nano-firmware
-        path: ./build/power_controller_nano.ino.hex
+        name: sentry-firmware
+        path: ./build/sentry_itsybitsy.ino.hex

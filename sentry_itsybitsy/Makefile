@@ -1,7 +1,7 @@
 # --- Config ---
 BOARD := arduino:avr:nano
 PORT  := $(shell ls /dev/tty.usbserial* 2>/dev/null || echo "/dev/ttyUSB0")
-SKETCH := ./power_controller_nano.ino
+SKETCH := ./sentry_itsybitsy.ino
 
 # --- Commands ---
 all: compile

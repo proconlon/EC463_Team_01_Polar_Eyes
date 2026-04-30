@@ -1,0 +1,16 @@
+[Unit]
+Description=Polar Eyes - Pi 5 Worker Listener
+After=network.target local-fs.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/polareyes
+ExecStart=/bin/bash /home/polareyes/run_listener.sh
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

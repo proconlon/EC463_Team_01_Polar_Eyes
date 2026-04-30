@@ -56,6 +56,14 @@ dkms.conf
 Thumbs.db
 *.log
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Telemetry / runtime data (never commit captured datasets)
+*.csv
+
 # C/C++
 timelapse_capture
 event_capture
