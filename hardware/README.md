@@ -9,9 +9,9 @@ This directory is the canonical home for all hardware design assets (electrical 
 - `datasheets/` - component datasheets used in the design
 - `bom/` - bill of materials and procurement notes
 
-## Portfolio-Ready Minimum
+## Required Hardware Deliverables
 
-To make this repo resume-ready, prioritize adding:
+Add the following deliverables to keep the hardware package complete:
 
 1. KiCad source project in `kicad/`
 2. Schematic PDF/PNG in `exports/`
@@ -19,4 +19,4 @@ To make this repo resume-ready, prioritize adding:
 4. BOM CSV in `bom/`
 5. Any calibration or wiring notes as markdown in this folder
 
-When you find legacy files, drop them into the right subdirectory and update this README with a quick index.
+When adding legacy files, place them in the appropriate subdirectory and update this README with a short index.

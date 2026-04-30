@@ -2,7 +2,7 @@
 
 Drop visual demo assets here.
 
-Suggested filenames:
+Suggested file names:
 
 - `demo_trigger.gif`
 - `sample_photo.jpg`

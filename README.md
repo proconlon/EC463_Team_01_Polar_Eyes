@@ -103,9 +103,9 @@ A 90-day deployment with a 100 Wh battery + small solar trickle is the design po
 │   ├── camera_sdk/             C++ Insta360 control app + Insta360 SDK
 │   ├── config/                 systemd unit (polar-listener.service)
 │   └── setup_pi_five.sh        On-Pi deployment installer
-├── samples/                  Example telemetry and media artifacts
-├── hardware/                 PCB/CAD/BOM planning + source placeholders
-├── storage_pi_four/          Pi 4 RAID node (reference / not currently used)
+├── samples/                  Telemetry and media artifacts
+├── hardware/                 PCB/CAD/BOM assets and exports
+├── storage_pi_four/          Pi 4 RAID node tooling and build scripts
 ├── docs/                     Project + module documentation
 ├── images/                   Diagrams + team photos
 └── .github/workflows/        CI: Arduino firmware + Pi 4 image

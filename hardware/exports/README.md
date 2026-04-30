@@ -8,4 +8,4 @@ Place generated visual and fabrication outputs here, for example:
 - `sentry_pcb_bottom.png`
 - `sentry_pcb_3d.png`
 
-These files are ideal for README embedding and portfolio review.
+These files are intended for README embedding, design reviews, and release documentation.
