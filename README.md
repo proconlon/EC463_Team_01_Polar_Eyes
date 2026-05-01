@@ -22,6 +22,12 @@ The system is a **dual-node, asymmetric architecture** that decouples always-on 
 </p>
 
 <p align="center">
+  <img src="./images/enclosure.jpg" width="70%" alt="Polar Eyes enclosure">
+  <br>
+  <em>Final enclosure configuration for Arctic field deployment.</em>
+</p>
+
+<p align="center">
   <img src="./images/pcb_final.png" width="50%" alt="Polar Eyes sentry PCB final revision">
   <br>
   <em>Custom sentry PCB (final revision): ItsyBitsy carrier, PIR front-end, radar gating, and worker trigger outputs.</em>
@@ -120,7 +126,7 @@ For end-to-end installation on a fresh Pi 5, see **[`docs/INSTALL.md`](docs/INST
 In short:
 
 ```bash
-git clone https://github.com/BU-EC463/EC463_Team_01_Polar_Eyes.git
+git clone https://github.com/proconlon/EC463_Team_01_Polar_Eyes.git
 cd EC463_Team_01_Polar_Eyes
 sudo ./worker_pi_five/setup_pi_five.sh
 sudo systemctl start polar-listener.service
